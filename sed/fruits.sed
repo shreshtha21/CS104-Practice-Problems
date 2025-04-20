@@ -1,1 +1,1 @@
-s/(\w*)/fruits_\1/g
+s/\b(\w+)/fruits_\1/g
