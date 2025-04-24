@@ -1,0 +1,1 @@
+s/[A-Za-z0-9]*,([A-Za-z]+),([0-9]+):([A-Za-z]),([A-Za-z]+)@gmail.com/\2,\4,\2:\3,\4@gmail.com/g
