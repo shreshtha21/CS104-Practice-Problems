@@ -1,64 +1,39 @@
 import matplotlib.pyplot as plt
-
-# Read the data from the text file
-file_name = "pip-latency-comparison.txt"
-x = []
-pip = []
-flush = []
-psfq = []
-fetch = []
-
-# Open the file and read line by line
-with open(file_name, 'r') as file:
-    header_skipped = False
+pip=list()
+hops=list()
+flush=list()
+psfq=list()
+fetch=list()
+i=1
+with open("pip-latency-comparison.txt", "r") as file:
     for line in file:
-        # Skip the header row
-        if not header_skipped:
-            header_skipped = True
+        if i==1:
+            i+=1
             continue
-        
-        # Split each line into columns (assuming tab-separated values)
-        columns = line.split(",")
-        
-        # Ensure there are enough columns (at least 5)
-        if len(columns) < 5:
-            continue
-        
-        # Extract values and append to respective lists
-        try:
-            x.append(int(columns[0]))  # Number of Hops
-            pip.append(float(columns[1]))  # PIP latency
-            flush.append(float(columns[2]))  # Flush latency
-            psfq.append(float(columns[3]))  # PSFQ latency
-            fetch.append(float(columns[4]))  # Fetch latency
-        except ValueError:
-            # Skip rows with invalid data
-            continue
+        parts=list(line.strip().split(","))
+        hops.append(float(parts[0]) if parts[0] else None)
+        pip.append(float(parts[1]) if parts[1] else None)
+        flush.append(float(parts[2]) if parts[2] else None)
+        psfq.append(float(parts[3]) if parts[3] else None)
+        fetch.append(float(parts[4]) if len(parts)>4 and parts[4] else None)
+def filter_valid(x, y):
+    return zip(*[(xi, yi) for xi, yi in zip(x, y) if xi is not None and yi is not None])
+#zip pairs the elements from lists x any together
+#then take those pairs in which no element is None
+#and then unzip them using * and return the two lists
+# Filter data for each plot
+h_pip, v_pip = filter_valid(hops, pip)
+h_flush, v_flush = filter_valid(hops, flush)
+h_psfq, v_psfq = filter_valid(hops, psfq)
+h_fetch, v_fetch = filter_valid(hops, fetch)
 
-# Plot the line graphs for the specified columns
-plt.figure(figsize=(10, 6))
-
-# PIP plot
-plt.plot(x, pip, label='PIP', color='red', marker='x', linestyle='solid', markersize=9, markeredgewidth=2, linewidth=2)
-
-# Flush plot
-plt.plot(x, flush, label='Flush', color='blue', marker='+', linestyle='dashed', markersize=9, markeredgewidth=2, linewidth=2)
-
-# PSFQ plot
-plt.plot(x, psfq, label='PSFQ', color='black', marker='o', linestyle='dashdot', markersize=9, markeredgewidth=2, linewidth=2)
-
-# Fetch plot
-plt.plot(x, fetch, label='Fetch', color='green', marker='^', linestyle='dotted', markersize=9, markeredgewidth=2, linewidth=2)
-
-# Set the labels and title
-plt.xlabel('Number of Hops')
-plt.ylabel('Latency (ms)')
-
-# Display the grid
-plt.grid(True)
-
-# Display the legend at the best location
+# Plotting
+plt.plot(h_pip, v_pip, color='red', ms=9, mew=2, lw=2, label="PIP")
+plt.plot(h_flush, v_flush, color='blue', label="Flush", ms=9, mew=2, lw=2)
+plt.plot(h_psfq, v_psfq, color='black', marker='o', ls='-.', label="PSFQ", ms=9, mew=2, lw=2)
+plt.plot(h_fetch, v_fetch, color='green', marker='^', ls=':', label="Fetch", ms=9, mew=2, lw=2)
+plt.xlabel("Number of Hops")
+plt.ylabel("Latency(ms)")
+plt.grid()
 plt.legend(loc='best')
-
-# Show the plot
 plt.show()
